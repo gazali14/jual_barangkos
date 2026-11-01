@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Barang Kos Dijual</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap">
+<style>
+:root{
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#f5f6f2;--card:#ffffff;--ink:#16202e;--muted:#5d6877;--line:#d9ddd4;
+  --ok:#0b7a5f;--ok-bg:#d9f2e8;--hold:#8a5a00;--hold-bg:#fbebc4;--sold:#6b7280;--sold-bg:#e5e7eb;
+  --cta:#16202e;--cta-ink:#ffffff;--tape:#f2c94c;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#10161f;--card:#1a2230;--ink:#eef1f5;--muted:#9aa5b5;--line:#2c3647;
+    --ok:#5fd3ae;--ok-bg:#123b30;--hold:#f0c868;--hold-bg:#3d2f0c;--sold:#9aa3b2;--sold-bg:#2a3140;
+    --cta:#eef1f5;--cta-ink:#10161f;--tape:#c9a227;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5}
+.wrap{max-width:960px;margin:0 auto;padding:28px 18px 64px}
+.tape{display:inline-block;background:var(--tape);color:#2b2200;font-weight:800;font-size:.85rem;padding:4px 12px;transform:rotate(-2deg);margin-bottom:10px}
+h1{font-size:clamp(2rem,6vw,3.2rem);line-height:1.05;margin:0 0 10px;font-weight:800;letter-spacing:-.02em}
+.sub{margin:0;color:var(--muted);max-width:52ch}
+.info{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:14px;font-size:.95rem}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 16px}
+.chip{font:inherit;font-size:.92rem;padding:7px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip:focus-visible,.btn:focus-visible{outline:3px solid var(--ok);outline-offset:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.item{position:relative;background:var(--card);border:1.5px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.item::before{content:"";position:absolute;top:10px;left:50%;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:var(--bg);border:1.5px solid var(--line);z-index:2}
+.pic{height:170px;display:grid;place-items:center;font-size:3.4rem;background:var(--bg);border-bottom:1.5px dashed var(--line)}
+.pic img{width:100%;height:100%;object-fit:cover}
+.body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.name{font-weight:600;font-size:1.1rem;margin:0}
+.badge{font-size:.78rem;font-weight:600;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.s-tersedia{background:var(--ok-bg);color:var(--ok)}
+.s-dibooking{background:var(--hold-bg);color:var(--hold)}
+.s-terjual{background:var(--sold-bg);color:var(--sold)}
+.note{margin:0;color:var(--muted);font-size:.9rem}
+.price{margin-top:auto;padding-top:8px;font-size:1.5rem;font-weight:800}
+.old{font-size:.85rem;font-weight:400;color:var(--muted);text-decoration:line-through;margin-left:6px}
+.btn{display:block;text-align:center;text-decoration:none;font-weight:600;padding:10px 14px;border-radius:10px;background:var(--cta);color:var(--cta-ink);margin-top:8px}
+.item.sold .pic,.item.sold .name,.item.sold .price{opacity:.45}
+.item.sold .btn{background:var(--sold-bg);color:var(--sold);pointer-events:none}
+.msg{color:var(--muted);padding:30px 0}
+footer{margin-top:34px;color:var(--muted);font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="tape" id="tape"></span>
+    <h1 id="judul"></h1>
+    <p class="sub" id="sub"></p>
+    <div class="info" id="info"></div>
+  </header>
+  <div class="chips" id="chips" role="group" aria-label="Filter status"></div>
+  <main class="grid" id="grid"><p class="msg">Memuat barang…</p></main>
+  <footer id="foot"></footer>
+</div>
+
+<script>
+/* ====== EDIT BAGIAN INI SEKALI SAJA ====== */
+const CONFIG = {
+  judul: "Barang kos dijual, harga adik tingkat",
+  nama: "Kak Rina",
+  wa: "6281234567890",               // 62 + nomor tanpa 0 di depan
+  lokasi: "Kos Melati, Jl. Kenanga No. 5",
+  jamLihat: "Setiap hari, 16.00–20.00",
+  batas: "30 November 2026",
+  catatan: "Bisa lihat barangnya langsung. Booking dengan DP Rp50.000.",
+  // Tempel link CSV dari Google Sheets (File > Share > Publish to web > CSV)
+  sheetUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqiKtX-0rwiEK0TrRsWlu8lKnXTO237KeoFflfLe80KW7rqR8e-w5w1XIlvlYXeJ_VjZL0WtSEEUJg/pub?output=csv"
+};
+/* ====== SELESAI ====== */
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const rp = n => "Rp" + (Number(n) || 0).toLocaleString("id-ID");
+const LABEL = {tersedia:"Tersedia", dibooking:"Dibooking", terjual:"Terjual"};
+let items = [], filter = "semua", loaded = false;
+
+function parseCSV(t){
+  const rows = []; let r = [], f = "", q = false;
+  for(let i = 0; i < t.length; i++){
+    const c = t[i];
+    if(q){ if(c === '"'){ if(t[i+1] === '"'){ f += '"'; i++; } else q = false; } else f += c; }
+    else if(c === '"') q = true;
+    else if(c === ","){ r.push(f); f = ""; }
+    else if(c === "\n" || c === "\r"){ if(c === "\r" && t[i+1] === "\n") i++; r.push(f); f = ""; rows.push(r); r = []; }
+    else f += c;
+  }
+  if(f !== "" || r.length){ r.push(f); rows.push(r); }
+  return rows;
+}
+
+function fotoUrl(u){
+  u = (u || "").trim();
+  const m = /drive\.google\.com/.test(u) && (u.match(/\/file\/d\/([\w-]+)/) || u.match(/[?&]id=([\w-]+)/));
+  if(m) return "https://drive.google.com/thumbnail?id=" + m[1] + "&sz=w800";
+  return /^https?:\/\//.test(u) ? u : "";
+}
+
+function toItems(rows){
+  if(rows.length < 2) return [];
+  const h = rows[0].map(x => x.trim().toLowerCase());
+  const col = k => h.indexOf(k);
+  return rows.slice(1).map(r => {
+    const g = k => (col(k) > -1 ? (r[col(k)] || "").trim() : "");
+    const st = g("status").toLowerCase();
+    return {
+      nama: g("nama"), emoji: g("emoji") || "📦", kondisi: g("kondisi"),
+      harga: parseInt(g("harga").replace(/\D/g, ""), 10) || 0,
+      asli: parseInt(g("harga_asli").replace(/\D/g, ""), 10) || 0,
+      status: LABEL[st] ? st : "tersedia", foto: fotoUrl(g("foto"))
+    };
+  }).filter(b => b.nama);
+}
+
+async function load(){
+  if(!CONFIG.sheetUrl){ $("grid").innerHTML = '<p class="msg">Link Google Sheets belum diisi di CONFIG.sheetUrl.</p>'; return; }
+  try{
+    const sep = CONFIG.sheetUrl.includes("?") ? "&" : "?";
+    const res = await fetch(CONFIG.sheetUrl + sep + "t=" + Date.now(), {cache:"no-store"});
+    if(!res.ok) throw new Error(res.status);
+    items = toItems(parseCSV(await res.text()));
+    loaded = true; render();
+  }catch(e){
+    if(!loaded) $("grid").innerHTML = '<p class="msg">Daftar barang belum bisa dimuat. Coba muat ulang halaman ini.</p>';
+  }
+}
+
+function head(){
+  const c = CONFIG, sisa = items.filter(b => b.status === "tersedia").length;
+  document.title = c.judul;
+  $("tape").textContent = "Ambil sebelum " + c.batas;
+  $("judul").textContent = c.judul;
+  $("sub").textContent = "Saya, " + c.nama + ", sebentar lagi wisuda dan meninggalkan kota ini. Semua barang ini siap pindah tangan ke adik-adik tingkat.";
+  $("info").innerHTML = "<span><b>Lokasi:</b> " + esc(c.lokasi) + "</span><span><b>Jam lihat barang:</b> " + esc(c.jamLihat) + "</span>" +
+    (loaded ? "<span><b>Masih tersedia:</b> " + sisa + " barang</span>" : "");
+  $("foot").textContent = c.catatan;
+}
+
+function chips(){
+  $("chips").innerHTML = [["semua","Semua"],["tersedia","Tersedia"],["dibooking","Dibooking"],["terjual","Terjual"]]
+    .map(([k,t]) => '<button class="chip" data-k="'+k+'" aria-pressed="'+(filter===k)+'">'+t+'</button>').join("");
+}
+$("chips").addEventListener("click", e => { const k = e.target.dataset.k; if(k){ filter = k; chips(); render(); } });
+
+function render(){
+  head();
+  const list = items.filter(b => filter === "semua" || b.status === filter);
+  if(!list.length){ $("grid").innerHTML = '<p class="msg">Belum ada barang dengan status ini.</p>'; return; }
+  $("grid").innerHTML = list.map(b => {
+    const href = "https://wa.me/" + encodeURIComponent(CONFIG.wa) + "?text=" + encodeURIComponent("Halo kak " + CONFIG.nama + ", saya mau tanya " + b.nama + " (" + rp(b.harga) + "), apakah masih ada?");
+    const pic = b.foto ? '<img src="'+esc(b.foto)+'" alt="'+esc(b.nama)+'" loading="lazy">' : '<span aria-hidden="true">'+esc(b.emoji)+'</span>';
+    const t = b.status === "terjual" ? "Sudah terjual" : b.status === "dibooking" ? "Tanya antrean" : "Pesan lewat WhatsApp";
+    return '<article class="item'+(b.status==="terjual"?" sold":"")+'"><div class="pic">'+pic+'</div><div class="body">'+
+      '<div class="top"><h2 class="name">'+esc(b.nama)+'</h2><span class="badge s-'+b.status+'">'+LABEL[b.status]+'</span></div>'+
+      '<p class="note">'+esc(b.kondisi)+'</p>'+
+      '<div class="price">'+rp(b.harga)+(b.asli?'<span class="old">'+rp(b.asli)+'</span>':'')+'</div>'+
+      '<a class="btn" href="'+href+'" target="_blank" rel="noopener">'+t+'</a></div></article>';
+  }).join("");
+}
+
+head(); chips(); load();
+setInterval(load, 120000);   // perbarui otomatis tiap 2 menit selagi halaman terbuka
+</script>
+</body>
+</html>
