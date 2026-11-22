@@ -265,7 +265,6 @@
       <header>
         <span class="tape" id="tape"></span>
         <h1 id="judul"></h1>
-        <p class="sub" id="sub"></p>
         <div class="info" id="info"></div>
       </header>
       <div
@@ -403,8 +402,6 @@
         document.title = c.judul;
         $("tape").textContent = "Ambil sebelum " + c.batas;
         $("judul").textContent = c.judul;
-        $("sub").textContent =
-          "Sebentar lagi wisuda dan meninggalkan kota ini. Semua barang ini siap pindah tangan ke adik-adik tingkat.";
         $("info").innerHTML =
           "<span><b>Lokasi:</b> " +
           esc(c.lokasi) +
