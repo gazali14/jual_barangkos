@@ -403,9 +403,7 @@
         document.title = c.judul;
         $("tape").textContent = "Ambil sebelum " + c.batas;
         $("judul").textContent = c.judul;
-        $("sub").textContent =
-          "Sebentar lagi wisuda dan meninggalkan kota ini. Semua barang ini siap pindah tangan ke adik-adik tingkat.";
-        $("info").innerHTML =
+        $("sub").textContent = $("info").innerHTML =
           "<span><b>Lokasi:</b> " +
           esc(c.lokasi) +
           (/^https:\/\//.test(c.maps || "")
@@ -413,8 +411,6 @@
               esc(c.maps) +
               '" target="_blank" rel="noopener">Lihat di Google Maps</a>)'
             : "") +
-          "</span><span><b>Jam lihat barang:</b> " +
-          esc(c.jamLihat) +
           "</span>" +
           (loaded
             ? "<span><b>Masih tersedia:</b> " + sisa + " barang</span>"
